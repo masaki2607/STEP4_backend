@@ -20,9 +20,9 @@ app = FastAPI()
 # CORS（クロスオリジン）設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 必要に応じて制限してください
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],  # 開発時はすべてのオリジンを許可
+    allow_credentials=False,  # "*" を使う場合はcredentialsをFalseにする
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
