@@ -21,7 +21,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # 必要に応じて制限してください
-    allow_credentials=True,
+    allow_credentials=False,  # "*" origins との組み合わせのため False に変更
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -41,6 +41,11 @@ def get_db():
 # パスワードの照合
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
+
+# ルートエンドポイント（テスト用）
+@app.get("/")
+def read_root():
+    return {"message": "OneView API is running!", "status": "healthy"}
 
 # ログインエンドポイント
 @app.post("/login")
@@ -62,7 +67,14 @@ router = APIRouter()
 def protected_route(emp_id: str = Depends(get_current_employee)):
     return {"message": f"{emp_id} さん、ようこそ！"}
 
+# ルーターをアプリに登録
+app.include_router(router)
 
 #パスワード再設定のエンドポイントを定義
 from reset_password import router as reset_router
 app.include_router(reset_router)
+
+# Azure App Service用の起動設定
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
