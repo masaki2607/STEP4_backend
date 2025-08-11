@@ -61,3 +61,13 @@ jobs:
           slot-name: 'Production'
           package: '.'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APS_ONEVIEW_02 }}
+        continue-on-error: true
+
+      - name: 'Retry deployment if failed'
+        if: steps.deploy-to-webapp.outcome == 'failure'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'aps-oneview-02'
+          slot-name: 'Production'
+          package: '.'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APS_ONEVIEW_02 }}

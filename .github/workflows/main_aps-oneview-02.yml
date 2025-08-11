@@ -4,6 +4,11 @@
 
 name: Build and deploy Python app to Azure Web App - aps-oneview-02
 
+# 同時実行制御を追加
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # 進行中のワークフローを中断しない（キューに入れる）
+
 on:
   push:
     branches:
@@ -25,11 +30,13 @@ jobs:
           python-version: '3.13'
 
       - name: Create and start virtual environment
+        working-directory: ./login_backend-main
         run: |
           python -m venv venv
           source venv/bin/activate
       
       - name: Install dependencies
+        working-directory: ./login_backend-main
         run: pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
@@ -39,8 +46,8 @@ jobs:
         with:
           name: python-app
           path: |
-            .
-            !venv/
+            ./login_backend-main
+            !./login_backend-main/venv/
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,6 +58,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: python-app
+      
+      # デプロイ前に少し待機（他のデプロイとの競合を避けるため）
+      - name: Wait before deployment
+        run: sleep 10
       
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
