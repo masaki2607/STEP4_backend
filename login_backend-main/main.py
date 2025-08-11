@@ -20,9 +20,9 @@ app = FastAPI()
 # CORS（クロスオリジン）設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 開発時はすべてのオリジンを許可
-    allow_credentials=False,  # "*" を使う場合はcredentialsをFalseにする
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_origins=["*"],  # 必要に応じて制限してください
+    allow_credentials=True,
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -66,8 +66,3 @@ def protected_route(emp_id: str = Depends(get_current_employee)):
 #パスワード再設定のエンドポイントを定義
 from reset_password import router as reset_router
 app.include_router(reset_router)
-
-# Azure App Service用の起動設定
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
